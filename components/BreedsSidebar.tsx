@@ -1,7 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
-
-function BreedsSidebar({origin, size, grooming, lifespan, weight}) {
+type BreedsSidebarProps = {
+  origin?: string;
+  size?: string;
+  grooming?: number;
+  lifespan?: number;
+  weight?: string;
+};
+function BreedsSidebar({ origin, size, grooming, lifespan, weight }: BreedsSidebarProps) {
   return (
           <aside className="lg:sticky lg:top-8 lg:h-fit">
             <div className="rounded-2xl bg-white p-5 ring-1 ring-gray-200 shadow-sm">

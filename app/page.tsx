@@ -13,7 +13,6 @@ const imgUrl = (u?: string, w = 800) => (u ? `${toHttps(u)}?w=${w}&q=80&fm=webp`
 export default async function Home() {
   const { items } = await cda.getEntries({
     content_type: 'catBreeds',
-    order: 'fields.name',
     include: 1,
   });
 

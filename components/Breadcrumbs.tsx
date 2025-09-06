@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 
-function Breadcrumbs({breedname}) {
+function Breadcrumbs({ breedname }: { breedname: string }) {
   return (
           <div className="container mx-auto px-6 pt-6">
         <div className="flex items-center gap-3 text-sm text-gray-600">

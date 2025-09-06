@@ -1,7 +1,11 @@
 import React from 'react'
 import Image from 'next/image'
-
-function Hero({imageSrc, breedname, summary}) {
+type HeroProps = {
+  imageSrc?: string;   // optional, may be undefined
+  breedname: string;   // required
+  summary?: string;    // optional
+};
+function Hero({imageSrc, breedname, summary} : HeroProps) {
   return (
         <header className="container mx-auto px-6 mt-4">
         <div className="relative overflow-hidden rounded-3xl bg-gray-100 ring-1 ring-black/5">

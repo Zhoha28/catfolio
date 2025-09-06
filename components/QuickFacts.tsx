@@ -1,6 +1,15 @@
 import React from 'react'
+type QuickFactsProps = {
+  origin?: string;
+  size?: string;
+  grooming?: number;
+  lifespan?: number;
+  weight?: string;
+  temperament?: string[]; 
+  colorsPatterns?: string;
+};
 
-function QuickFacts({origin, size, grooming, lifespan, weight, temparment, colorsPatterns}) {
+function QuickFacts({origin, size, grooming, lifespan, weight, temperament, colorsPatterns} :QuickFactsProps) {
   return (
            <section aria-labelledby="facts" className="mb-8">
                  <h2 id="facts" className="sr-only">
@@ -32,11 +41,11 @@ function QuickFacts({origin, size, grooming, lifespan, weight, temparment, color
                        Weight: {weight}
                      </span>
                    )}
-                   {temparment?.length > 0 && (
-                     <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
-                       Temperament: {temparment.join(", ")}
-                     </span>
-                   )}
+                {Array.isArray(temperament) && temperament.length > 0 && (
+  <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
+    Temperament: {temperament.join(", ")}
+  </span>
+)}
                    {colorsPatterns && (
                      <span className="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
                        Colors: {colorsPatterns}

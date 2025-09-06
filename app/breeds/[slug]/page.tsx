@@ -11,6 +11,44 @@ import QuickFacts from "@/components/QuickFacts";
 import BreedsSidebar from "@/components/BreedsSidebar";
 import Gallery from "@/components/Gallery";
 
+// ---------- helpers ----------
+type AssetLike = { fields?: { file?: { url?: string } } };
+
+const isAssetLike = (x: unknown): x is AssetLike =>
+  !!(x && typeof x === "object" && (x as AssetLike).fields?.file?.url);
+
+const getAssetUrl = (x: unknown): string | undefined => {
+  if (!isAssetLike(x)) return undefined;
+  const url = x.fields!.file!.url!;
+  return url.startsWith("http") ? url : `https:${url}`;
+};
+
+type CatBreedFields = {
+  name: string;
+  slug: string;
+  heroImage?: unknown;
+  imageGallery?: unknown[];
+  origin?: string;
+  temperamentTags?: string[];
+  size?: "Small" | "Medium" | "Large" | string;
+  groomingLevel?: number;
+  lifespan?: number;
+  weightRange?: string;
+  colorsPatterns?: string;
+  briefSummary?: string;
+  aboutBody?: any;
+};
+
+// Narrow the Contentful entry at runtime (no unsafe cast)
+function isCatBreedEntry(x: unknown): x is { fields: CatBreedFields } {
+  const f = (x as any)?.fields;
+  return (
+    !!f &&
+    typeof f.name === "string" &&
+    typeof f.slug === "string"
+  );
+}
+
 type RouteParams = { slug: string };
 
 export async function generateStaticParams() {
@@ -18,34 +56,35 @@ export async function generateStaticParams() {
     content_type: "catBreeds",
     limit: 1000,
   });
-  return items.map((i: any) => ({ slug: i.fields.slug }));
+  return items
+    .map((i: any) => i?.fields?.slug)
+    .filter(Boolean)
+    .map((slug: string) => ({ slug }));
 }
 
 export default async function BreedPage({
   params,
 }: {
-  params: Promise<RouteParams>; // 👈 accept Promise
+  params: Promise<RouteParams>;
 }) {
-  const { slug } = await params; // 👈 await it
+  const { slug } = await params;
 
   const { items } = await cda.getEntries({
     content_type: "catBreeds",
-    "fields.slug": slug, // 👈 use the awaited slug
+    "fields.slug": slug,
     include: 2,
     limit: 1,
   });
 
-  const breed = items[0];
-  if (!breed) return notFound();
+  const entry = items[0] as unknown;           // <-- keep as unknown
+  if (!isCatBreedEntry(entry)) return notFound();
 
-  const f = breed.fields;
-  const file = f.heroImage?.fields?.file;
-  const heroSrc = file?.url ? `https:${file.url}` : undefined;
+  const f = entry.fields;                       // <-- now typed as CatBreedFields
+
+  const heroSrc = getAssetUrl(f.heroImage);
 
   const gallery: string[] = Array.isArray(f.imageGallery)
-    ? f.imageGallery
-        .map((a: any) => a?.fields?.file?.url && `https:${a.fields.file.url}`)
-        .filter(Boolean)
+    ? f.imageGallery.map(getAssetUrl).filter((u): u is string => Boolean(u))
     : [];
 
   return (
@@ -62,7 +101,7 @@ export default async function BreedPage({
               grooming={f.groomingLevel}
               lifespan={f.lifespan}
               weight={f.weightRange}
-              temperament={f.temperamentTags} // 👈 fix prop name
+              temperament={f.temperamentTags}
               colorsPatterns={f.colorsPatterns}
             />
 
