@@ -16,7 +16,6 @@ type RouteParams = { slug: string };
 export async function generateStaticParams() {
   const { items } = await cda.getEntries({
     content_type: "catBreeds",
-    select: "fields.slug",
     limit: 1000,
   });
   return items.map((i: any) => ({ slug: i.fields.slug }));
