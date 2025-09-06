@@ -11,7 +11,7 @@ import QuickFacts from "@/components/QuickFacts";
 import BreedsSidebar from "@/components/BreedsSidebar";
 import Gallery from "@/components/Gallery";
 
-type Params = { params: { slug: string } };
+type RouteParams = { slug: string };
 
 export async function generateStaticParams() {
   const { items } = await cda.getEntries({
@@ -22,10 +22,16 @@ export async function generateStaticParams() {
   return items.map((i: any) => ({ slug: i.fields.slug }));
 }
 
-export default async function BreedPage({ params }: Params) {
+export default async function BreedPage({
+  params,
+}: {
+  params: Promise<RouteParams>; // 👈 accept Promise
+}) {
+  const { slug } = await params; // 👈 await it
+
   const { items } = await cda.getEntries({
     content_type: "catBreeds",
-    "fields.slug": params.slug,
+    "fields.slug": slug, // 👈 use the awaited slug
     include: 2,
     limit: 1,
   });
@@ -45,21 +51,22 @@ export default async function BreedPage({ params }: Params) {
 
   return (
     <article className="min-h-dvh bg-gradient-to-b from-white to-gray-50">
-      {/* Top bar / breadcrumb */}
       <Breadcrumbs breedname={f.name} />
-
       <Hero imageSrc={heroSrc} breedname={f.name} summary={f.briefSummary} />
 
-      {/* Body */}
       <div className="container mx-auto px-6 py-10">
         <div className="grid gap-10 lg:grid-cols-3">
-          {/* Main content */}
           <div className="lg:col-span-2">
-            {/* Quick facts as chips */}
+            <QuickFacts
+              origin={f.origin}
+              size={f.size}
+              grooming={f.groomingLevel}
+              lifespan={f.lifespan}
+              weight={f.weightRange}
+              temperament={f.temperamentTags} // 👈 fix prop name
+              colorsPatterns={f.colorsPatterns}
+            />
 
-            <QuickFacts origin={f.origin} size={f.size} grooming={f.groomingLevel} lifespan={f.lifespan} weight={f.weightRange} temparment={f.temperamentTags} colorsPatterns={f.colorsPatterns} />
-
-            {/* About */}
             {f.aboutBody && (
               <section aria-labelledby="about">
                 <h2 id="about" className="text-xl font-semibold mb-3">
@@ -69,12 +76,16 @@ export default async function BreedPage({ params }: Params) {
               </section>
             )}
 
-            {/* Gallery */}
-         <Gallery gallery={gallery} name={f.name}/>
+            <Gallery gallery={gallery} name={f.name} />
           </div>
 
-          {/* Side panel (sticky) */}
-          <BreedsSidebar origin={f.origin} lifespan={f.lifespan} weight={f.weightRange} grooming={f.groomingLevel} size={f.size}/>
+          <BreedsSidebar
+            origin={f.origin}
+            lifespan={f.lifespan}
+            weight={f.weightRange}
+            grooming={f.groomingLevel}
+            size={f.size}
+          />
         </div>
       </div>
     </article>
